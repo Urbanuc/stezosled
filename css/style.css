@@ -1,0 +1,137 @@
+:root {
+  --temno: #1f2d3d;
+  --zelena: #2f6b4f;
+  --svetlo: #f4f6f5;
+  --besedilo: #222;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--besedilo);
+  line-height: 1.6;
+}
+
+html { scroll-behavior: smooth; }
+
+/* Glava */
+.glava {
+  min-height: 90vh;
+  color: white;
+  background: linear-gradient(rgba(20, 30, 40, 0.55), rgba(20, 30, 40, 0.75)),
+              linear-gradient(160deg, #6b8fa8, #2f4f3f);
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+}
+
+.meni {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+}
+.logo { color: white; text-decoration: none; font-weight: 700; font-size: 1.2rem; }
+.meni-povezave { display: flex; gap: 1.5rem; list-style: none; }
+.meni-povezave a { color: white; text-decoration: none; }
+.meni-povezave a:hover { text-decoration: underline; }
+.meni-gumb { display: none; background: none; border: none; color: white; font-size: 1.6rem; cursor: pointer; }
+
+.uvod {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+.uvod h1 { font-size: clamp(2.5rem, 7vw, 4.5rem); }
+.uvod p { max-width: 36rem; margin: 1rem 0 2rem; font-size: 1.15rem; }
+
+.gumb {
+  background: var(--zelena);
+  color: white;
+  padding: 0.8rem 1.6rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+}
+.gumb:hover { filter: brightness(1.1); }
+
+/* Sekcije */
+.sekcija { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+.sekcija.sivo { max-width: none; background: var(--svetlo); }
+.sekcija.sivo > * { max-width: 1100px; margin-left: auto; margin-right: auto; }
+.sekcija h2 { font-size: 2rem; color: var(--temno); margin-bottom: 0.5rem; }
+.podnaslov { color: #666; margin-bottom: 2rem; }
+
+/* Kartice vrhov */
+.kartice {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+.kartica {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  background: white;
+}
+.kartica-slika {
+  height: 150px;
+  background: linear-gradient(160deg, #8fb3c9, #3f6b55);
+  color: white;
+  font-size: 3rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.kartica-vsebina { padding: 1rem 1.2rem 1.4rem; }
+.kartica-vsebina p { margin-top: 0.3rem; }
+.visina { color: var(--zelena); font-weight: 700; }
+
+.oznaka { padding: 0.1rem 0.6rem; border-radius: 999px; font-size: 0.85rem; color: white; }
+.oznaka.lahka { background: #3a8d5c; }
+.oznaka.srednja { background: #d08a1e; }
+.oznaka.zahtevna { background: #b8392f; }
+
+/* Narava */
+.dva-stolpca { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem; }
+.seznam { margin-top: 1rem; padding-left: 1.2rem; }
+
+/* Galerija */
+.galerija {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.slika-prostor {
+  aspect-ratio: 4 / 3;
+  background: #dde3e0;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: #777;
+}
+
+/* Noga */
+.noga { background: var(--temno); color: #ccd; text-align: center; padding: 1.5rem; }
+
+/* Telefon */
+@media (max-width: 700px) {
+  .meni-gumb { display: block; }
+  .meni-povezave {
+    display: none;
+    position: absolute;
+    top: 3.5rem;
+    right: 1rem;
+    flex-direction: column;
+    background: var(--temno);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+  }
+  .meni-povezave.odprt { display: flex; }
+  .dva-stolpca { grid-template-columns: 1fr; }
+}

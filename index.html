@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pet dvatisočakov</title>
+  <meta name="description" content="Projektna naloga: vzpon na pet slovenskih dvatisočakov – poti, narava in fotografije.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="glava">
+    <nav class="meni">
+      <a href="#" class="logo">⛰ Pet dvatisočakov</a>
+      <button class="meni-gumb" aria-label="Odpri meni">☰</button>
+      <ul class="meni-povezave">
+        <li><a href="#vrhovi">Vrhovi</a></li>
+        <li><a href="#narava">Narava</a></li>
+        <li><a href="#galerija">Galerija</a></li>
+        <li><a href="#o-projektu">O projektu</a></li>
+      </ul>
+    </nav>
+    <div class="uvod">
+      <h1>Pet dvatisočakov</h1>
+      <p>Pet slovenskih vrhov nad 2000 metri, poti do njih in narava, ki jo srečaš na poti.</p>
+      <a href="#vrhovi" class="gumb">Poglej vrhove</a>
+    </div>
+  </header>
+
+  <main>
+    <section id="vrhovi" class="sekcija">
+      <h2>Vrhovi</h2>
+      <p class="podnaslov">Za vsak vrh: višina, izhodišče, čas hoje in opis poti.</p>
+      <div class="kartice" id="seznam-vrhov"></div>
+    </section>
+
+    <section id="narava" class="sekcija sivo">
+      <h2>Narava</h2>
+      <div class="dva-stolpca">
+        <div>
+          <h3>🌼 Rastline</h3>
+          <p>Zbirka rastlin, ki sem jih fotografiral na poteh.</p>
+          <ul id="seznam-rastlin" class="seznam"></ul>
+        </div>
+        <div>
+          <h3>🐐 Živali</h3>
+          <p>Živali, ki sem jih srečal v gorah.</p>
+          <ul id="seznam-zivali" class="seznam"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="galerija" class="sekcija">
+      <h2>Galerija</h2>
+      <p class="podnaslov">Fotografije razgledov, rastlin in živali.</p>
+      <div class="galerija">
+        <div class="slika-prostor">Fotografija 1</div>
+        <div class="slika-prostor">Fotografija 2</div>
+        <div class="slika-prostor">Fotografija 3</div>
+        <div class="slika-prostor">Fotografija 4</div>
+        <div class="slika-prostor">Fotografija 5</div>
+        <div class="slika-prostor">Fotografija 6</div>
+      </div>
+    </section>
+
+    <section id="o-projektu" class="sekcija sivo">
+      <h2>O projektu</h2>
+      <p>To spletno stran sem naredil v okviru samostojne projektne naloge v 2. letniku Škofijske klasične gimnazije.
+        Cilj je bil povzpeti se na pet slovenskih dvatisočakov, fotografirati naravo in razglede
+        ter izdelati vodnik za vsakega, ki bi rad šel po isti poti.</p>
+    </section>
+  </main>
+
+  <footer class="noga">
+    <p>© 2026 Luka · Projektna naloga · Škofijska klasična gimnazija</p>
+  </footer>
+
+  <script src="js/podatki.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
