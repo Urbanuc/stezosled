@@ -119,6 +119,137 @@ html { scroll-behavior: smooth; }
 /* Noga */
 .noga { background: var(--temno); color: #ccd; text-align: center; padding: 1.5rem; }
 
+/* ===== Dodatek: bolj živ videz ===== */
+
+/* Animiran ozadje v glavi */
+.glava {
+  background: linear-gradient(rgba(20, 30, 40, 0.45), rgba(20, 30, 40, 0.8)),
+              linear-gradient(120deg, #1f3b57, #2f6b4f, #6b8fa8, #1f3b57);
+  background-size: cover, 300% 300%;
+  animation: premik 14s ease infinite;
+}
+@keyframes premik {
+  0%   { background-position: 0 0, 0% 50%; }
+  50%  { background-position: 0 0, 100% 50%; }
+  100% { background-position: 0 0, 0% 50%; }
+}
+
+/* Naslov z gradientom in rahlim uvodnim pojavom */
+.uvod h1 {
+  background: linear-gradient(90deg, #ffffff, #bfe3d0, #ffffff);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sij 6s linear infinite, pojavi 1s ease-out both;
+  text-shadow: none;
+}
+@keyframes sij { to { background-position: 200% center; } }
+@keyframes pojavi {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Gumb s sijajem */
+.gumb {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(47, 107, 79, 0.45);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.gumb:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(47, 107, 79, 0.6); }
+.gumb::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -75%;
+  width: 50%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-20deg);
+}
+.gumb:hover::after { left: 125%; transition: left 0.6s ease; }
+
+/* Navigacija z zamegljenim ozadjem */
+.meni {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(20, 30, 40, 0.35);
+}
+.meni-povezave a { position: relative; padding: 0.2rem 0; }
+.meni-povezave a::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -2px;
+  width: 0; height: 2px;
+  background: #9fd8b8;
+  transition: width 0.25s ease;
+}
+.meni-povezave a:hover::after { width: 100%; }
+.meni-povezave a:hover { text-decoration: none; }
+
+/* Kartice vrhov: dvig ob pomiku */
+.kartica {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: pojavi 0.6s ease-out both;
+}
+.kartica:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 16px 36px rgba(31, 45, 61, 0.25);
+}
+.kartica:nth-child(2) { animation-delay: 0.1s; }
+.kartica:nth-child(3) { animation-delay: 0.2s; }
+.kartica:nth-child(4) { animation-delay: 0.3s; }
+.kartica:nth-child(5) { animation-delay: 0.4s; }
+.kartica-slika { position: relative; overflow: hidden; }
+.kartica-slika::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.35), transparent 60%);
+}
+
+/* Galerija: povečava ob pomiku */
+.slika-prostor {
+  background: linear-gradient(135deg, #dde3e0, #c4d6cd);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+.slika-prostor:hover {
+  transform: scale(1.04);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+/* Seznami z vizualnimi oznakami */
+.seznam li { margin: 0.35rem 0; transition: color 0.2s ease, transform 0.2s ease; }
+.seznam li:hover { color: var(--zelena); transform: translateX(6px); }
+
+/* Naslovi sekcij z zeleno črto */
+.sekcija h2 { position: relative; display: inline-block; }
+.sekcija h2::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -0.3rem;
+  width: 3rem; height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--zelena), #9fd8b8);
+}
+
+/* Nežen pojav sekcij ob pomiku */
+.sekcija { animation: pojavi 0.8s ease-out both; }
+
+/* Noga z gradientom */
+.noga {
+  background: linear-gradient(135deg, var(--temno), #2f4f3f);
+  letter-spacing: 0.02em;
+}
+
+/* Upoštevaj zmanjšano gibanje */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
 /* Telefon */
 @media (max-width: 700px) {
   .meni-gumb { display: block; }
