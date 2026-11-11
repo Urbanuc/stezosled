@@ -53,7 +53,6 @@ function zaledjeLokalno() {
   const trenutni = () => bere("demo-uporabnik", null);
   const sporoci = () => poslusalci.forEach((cb) => cb(trenutni()));
   const osvezi = () => objaveCb && objaveCb(bere("demo-objave", []).map((o) => ({ ...o, cas: new Date(o.cas) })));
-  });
   return {
     naUporabnika: (cb) => { poslusalci.push(cb); cb(trenutni()); },
     async prijava(email) {
