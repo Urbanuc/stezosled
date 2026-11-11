@@ -266,3 +266,21 @@ html { scroll-behavior: smooth; }
   .meni-povezave.odprt { display: flex; }
   .dva-stolpca { grid-template-columns: 1fr; }
 }
+
+/* ===== Telefon ===== */
+@media (max-width: 700px) {
+  .meni-gumb { display: block; }
+  .meni-povezave {
+    display: none;
+    position: absolute;
+    top: 100%; left: 0; right: 0;
+    flex-direction: column;
+    gap: 0;
+    background: rgba(20, 30, 40, 0.95);
+    padding: 0.5rem 0;
+  }
+  .meni-povezave.odprt { display: flex; }
+  .meni-povezave li a { display: block; padding: 0.8rem 2rem; }
+  .dva-stolpca { grid-template-columns: 1fr; }
+  .sekcija { padding: 3rem 1.2rem; }
+}
