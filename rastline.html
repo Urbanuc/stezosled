@@ -21,10 +21,20 @@
         <label class="gumb gumb-svetel" for="slika-galerija">🖼️ Iz galerije</label>
         <input id="slika-galerija" type="file" accept="image/*" hidden>
       </div>
+      <label class="majhno" for="del-rastline">Kaj je na sliki?
+        <select id="del-rastline">
+          <option value="flower">Cvet</option>
+          <option value="leaf">List</option>
+          <option value="fruit">Plod</option>
+          <option value="bark">Deblo</option>
+          <option value="habit">Cela rastlina</option>
+          <option value="auto">Ne vem</option>
+        </select>
+      </label>
       <img id="predogled" class="predogled" alt="" hidden>
       <p id="stanje" class="majhno" role="status"></p>
       <div id="rezultati"></div>
-      <p class="majhno">Prepoznava je približna. Zavarovanih rastlin nikoli ne trgaj, fotografiraj jih.</p>
+      <p class="majhno">Najprej izberi, kaj je na sliki, nato fotografiraj od blizu samo en cvet ali list. Prepoznava je približna; zavarovanih rastlin ne trgaj, fotografiraj jih.</p>
     </section>
 
     <h2 class="razmik">Vodnik po gorskem cvetju</h2>

@@ -19,7 +19,7 @@ async function pozoviPlantNet(blob) {
   for (const projekt of projekti) {
     const podatki = new FormData();
     podatki.append("images", blob, "roza.jpg");
-    podatki.append("organs", "auto");
+    podatki.append("organs", $("del-rastline").value);
     const odgovor = await fetch(
       `https://my-api.plantnet.org/v2/identify/${projekt}?include-related-images=false&nb-results=6&api-key=${encodeURIComponent(plantnetKljuc)}`,
       { method: "POST", body: podatki },
