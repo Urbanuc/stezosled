@@ -139,3 +139,4 @@ dialog form { display: grid; gap: 0.8rem; }
   .filter input { grid-column: 1 / -1; }
   .nav { order: 3; flex-basis: 100%; }
 }
+.rezultat-ime { font-size: 1.25rem; }

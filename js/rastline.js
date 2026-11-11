@@ -98,20 +98,15 @@ async function prepoznaj(datoteka) {
   stanje.textContent = "Prepoznavam …";
   try {
     const blob = await (await fetch(predogled)).blob();
-    const zadetki = (await pozoviPlantNet(blob)).slice(0, 4);
-    const latinska = zadetki.map((z) => z.species.scientificNameWithoutAuthor);
-    const imena = await slovenskaImena(latinska);
+    const zadetki = (await pozoviPlantNet(blob)).slice(0, 1);
+    const lat = zadetki[0].species.scientificNameWithoutAuthor;
+    const imena = await slovenskaImena([lat]);
+    const ime = imena.get(lat) || lat;
 
-    stanje.textContent = "Najverjetnejši zadetki:";
-    rez.innerHTML = zadetki.map((z, i) => {
-      const lat = latinska[i];
-      const odstotek = Math.round(z.score * 100);
-      return `<div class="rezultat">
-        <div class="rezultat-vrstica"><strong>${esc(imena.get(lat) || lat)}</strong><span>${odstotek} %</span></div>
-        <div class="pasica"><div style="width:${odstotek}%"></div></div>
-        <p class="majhno"><a href="https://sl.wikipedia.org/w/index.php?search=${encodeURIComponent(imena.get(lat) || lat)}" target="_blank" rel="noopener">več o tej rastlini</a></p>
-      </div>`;
-    }).join("");
+    stanje.className = "majhno";
+    stanje.textContent = "";
+    rez.innerHTML = `<p class="rezultat-ime">Najverjetneje je to <strong>${esc(ime)}</strong>.</p>
+      <p class="majhno"><a href="https://sl.wikipedia.org/w/index.php?search=${encodeURIComponent(ime)}" target="_blank" rel="noopener">več o tej rastlini</a></p>`;
   } catch (err) {
     stanje.className = "napaka";
     stanje.textContent = err.message;
