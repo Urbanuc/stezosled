@@ -1,11 +1,6 @@
-// Prijava z e-pošto in objave (Firebase Auth + Firestore + Storage)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+// Prijava z e-pošto in objave.
+// Če je Firebase nastavljen (js/firebase-config.js), se uporabi on.
+// Sicer deluje preskusni način: vse ostane samo v tvojem brskalniku (localStorage).
 import { firebaseConfig } from "./firebase-config.js";
 
 const $ = (id) => document.getElementById(id);
@@ -15,92 +10,160 @@ const sporocilo = (txt, napaka = false) => {
   el.className = napaka ? "napaka" : "";
 };
 
-if (firebaseConfig.apiKey === "VPIŠI") {
-  sporocilo("Firebase še ni nastavljen – vpiši podatke v js/firebase-config.js (glej NAVODILA-FIREBASE.md).", true);
-} else {
+const FIREBASE = "https://www.gstatic.com/firebasejs/10.12.0/";
+const imaFirebase = firebaseConfig.apiKey !== "VPIŠI";
+
+// ---------- Zaledje: Firebase ----------
+async function zaledjeFirebase() {
+  const [{ initializeApp }, A, F, S] = await Promise.all([
+    import(FIREBASE + "firebase-app.js"),
+    import(FIREBASE + "firebase-auth.js"),
+    import(FIREBASE + "firebase-firestore.js"),
+    import(FIREBASE + "firebase-storage.js"),
+  ]);
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-
-  // Prijava / registracija
-  $("obrazec-prijava").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = $("prijava-email").value.trim();
-    const geslo = $("prijava-geslo").value;
-    const registracija = e.submitter?.dataset.akcija === "registracija";
-    try {
-      if (registracija) await createUserWithEmailAndPassword(auth, email, geslo);
-      else await signInWithEmailAndPassword(auth, email, geslo);
-      sporocilo("");
-    } catch (err) {
-      sporocilo(prevediNapako(err.code), true);
-    }
-  });
-  $("gumb-odjava").addEventListener("click", () => signOut(auth));
-
-  onAuthStateChanged(auth, (uporabnik) => {
-    $("prijava-okno").hidden = !!uporabnik;
-    $("nova-objava").hidden = !uporabnik;
-    if (uporabnik) $("prijavljen-kot").textContent = uporabnik.email;
-  });
-
-  // Nova objava
-  $("obrazec-objava").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const uporabnik = auth.currentUser;
-    if (!uporabnik) return;
-    const datoteka = $("objava-slika").files[0];
-    const besedilo = $("objava-besedilo").value.trim();
-    const vrh = $("objava-vrh").value.trim();
-    if (!datoteka && !besedilo) return sporocilo("Dodaj sliko ali besedilo.", true);
-    const gumb = e.submitter;
-    gumb.disabled = true;
-    sporocilo("Objavljam …");
-    try {
+  const auth = A.getAuth(app);
+  const db = F.getFirestore(app);
+  const storage = S.getStorage(app);
+  return {
+    naUporabnika: (cb) => A.onAuthStateChanged(auth, (u) => cb(u && { id: u.uid, email: u.email })),
+    prijava: (e, g) => A.signInWithEmailAndPassword(auth, e, g),
+    registracija: (e, g) => A.createUserWithEmailAndPassword(auth, e, g),
+    odjava: () => A.signOut(auth),
+    async objavi({ besedilo, vrh, datoteka }) {
+      const u = auth.currentUser;
       let slikaUrl = null;
       if (datoteka) {
-        const pot = ref(storage, `objave/${uporabnik.uid}/${Date.now()}-${datoteka.name}`);
-        await uploadBytes(pot, datoteka);
-        slikaUrl = await getDownloadURL(pot);
+        const pot = S.ref(storage, `objave/${u.uid}/${Date.now()}-${datoteka.name}`);
+        await S.uploadBytes(pot, datoteka);
+        slikaUrl = await S.getDownloadURL(pot);
       }
-      await addDoc(collection(db, "objave"), {
-        avtor: uporabnik.email,
-        avtorId: uporabnik.uid,
-        besedilo,
-        vrh,
-        slikaUrl,
-        cas: serverTimestamp(),
+      await F.addDoc(F.collection(db, "objave"), {
+        avtor: u.email, avtorId: u.uid, besedilo, vrh, slikaUrl, cas: F.serverTimestamp(),
       });
-      e.target.reset();
-      sporocilo("Objavljeno.");
-    } catch (err) {
-      sporocilo("Objava ni uspela: " + err.message, true);
-    } finally {
-      gumb.disabled = false;
-    }
-  });
-
-  // Seznam objav v živo
-  const seznam = $("seznam-objav");
-  onSnapshot(query(collection(db, "objave"), orderBy("cas", "desc")), (snap) => {
-    seznam.innerHTML = "";
-    if (snap.empty) seznam.innerHTML = '<p class="podnaslov">Še ni objav – bodi prvi.</p>';
-    snap.forEach((d) => {
-      const o = d.data();
-      const el = document.createElement("article");
-      el.className = "objava";
-      const datum = o.cas?.toDate ? o.cas.toDate().toLocaleDateString("sl-SI") : "";
-      el.innerHTML = `
-        ${o.slikaUrl ? `<img src="${esc(o.slikaUrl)}" alt="" loading="lazy">` : ""}
-        <div class="objava-vsebina">
-          <p class="objava-glava"><strong>${esc(o.avtor)}</strong>${o.vrh ? " · ⛰ " + esc(o.vrh) : ""} <span>${datum}</span></p>
-          ${o.besedilo ? `<p>${esc(o.besedilo)}</p>` : ""}
-        </div>`;
-      seznam.appendChild(el);
-    });
-  });
+    },
+    naObjave: (cb) =>
+      F.onSnapshot(F.query(F.collection(db, "objave"), F.orderBy("cas", "desc")), (snap) =>
+        cb(snap.docs.map((d) => {
+          const o = d.data();
+          return { ...o, cas: o.cas?.toDate ? o.cas.toDate() : null };
+        }))),
+  };
 }
+
+// ---------- Zaledje: preskusni način (localStorage) ----------
+function zaledjeLokalno() {
+  const bere = (k, v) => { try { return JSON.parse(localStorage.getItem(k)) ?? v; } catch { return v; } };
+  let poslusalci = [];
+  let objaveCb = null;
+  const trenutni = () => bere("demo-uporabnik", null);
+  const sporoci = () => poslusalci.forEach((cb) => cb(trenutni()));
+  const osvezi = () => objaveCb && objaveCb(bere("demo-objave", []).map((o) => ({ ...o, cas: new Date(o.cas) })));
+  const preberiSliko = (datoteka) => new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => {
+      // pomanjšaj, da ne napolnimo localStorage
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, 800 / img.width);
+        const c = document.createElement("canvas");
+        c.width = img.width * k; c.height = img.height * k;
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL("image/jpeg", 0.7));
+      };
+      img.onerror = rej;
+      img.src = r.result;
+    };
+    r.onerror = rej;
+    r.readAsDataURL(datoteka);
+  });
+  return {
+    naUporabnika: (cb) => { poslusalci.push(cb); cb(trenutni()); },
+    async prijava(email) {
+      localStorage.setItem("demo-uporabnik", JSON.stringify({ id: email, email }));
+      sporoci();
+    },
+    async registracija(email) { return this.prijava(email); },
+    async odjava() { localStorage.removeItem("demo-uporabnik"); sporoci(); },
+    async objavi({ besedilo, vrh, datoteka }) {
+      const u = trenutni();
+      const slikaUrl = datoteka ? await preberiSliko(datoteka) : null;
+      const vse = bere("demo-objave", []);
+      vse.unshift({ avtor: u.email, avtorId: u.id, besedilo, vrh, slikaUrl, cas: new Date().toISOString() });
+      try {
+        localStorage.setItem("demo-objave", JSON.stringify(vse));
+      } catch {
+        throw new Error("Brskalnik nima več prostora za slike.");
+      }
+      osvezi();
+    },
+    naObjave: (cb) => { objaveCb = cb; osvezi(); },
+  };
+}
+
+// ---------- Vmesnik ----------
+const zaledje = imaFirebase ? await zaledjeFirebase() : zaledjeLokalno();
+if (!imaFirebase) {
+  sporocilo("Preskusni način: objave so vidne samo v tem brskalniku. Za prave objave nastavi Firebase (NAVODILA-FIREBASE.md).");
+}
+
+$("obrazec-prijava").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = $("prijava-email").value.trim();
+  const geslo = $("prijava-geslo").value;
+  const registracija = e.submitter?.dataset.akcija === "registracija";
+  try {
+    if (registracija) await zaledje.registracija(email, geslo);
+    else await zaledje.prijava(email, geslo);
+    if (imaFirebase) sporocilo("");
+  } catch (err) {
+    sporocilo(prevediNapako(err.code), true);
+  }
+});
+$("gumb-odjava").addEventListener("click", () => zaledje.odjava());
+
+zaledje.naUporabnika((u) => {
+  $("prijava-okno").hidden = !!u;
+  $("nova-objava").hidden = !u;
+  if (u) $("prijavljen-kot").textContent = u.email;
+});
+
+$("obrazec-objava").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const datoteka = $("objava-slika").files[0];
+  const besedilo = $("objava-besedilo").value.trim();
+  const vrh = $("objava-vrh").value.trim();
+  if (!datoteka && !besedilo) return sporocilo("Dodaj sliko ali besedilo.", true);
+  const gumb = e.submitter;
+  gumb.disabled = true;
+  try {
+    await zaledje.objavi({ besedilo, vrh, datoteka });
+    e.target.reset();
+    sporocilo(imaFirebase ? "Objavljeno." : "Objavljeno (preskusni način).");
+  } catch (err) {
+    sporocilo("Objava ni uspela: " + err.message, true);
+  } finally {
+    gumb.disabled = false;
+  }
+});
+
+const seznam = $("seznam-objav");
+zaledje.naObjave((objave) => {
+  seznam.innerHTML = "";
+  if (!objave.length) seznam.innerHTML = '<p class="podnaslov">Še ni objav – bodi prvi.</p>';
+  objave.forEach((o) => {
+    const el = document.createElement("article");
+    el.className = "objava";
+    const datum = o.cas ? o.cas.toLocaleDateString("sl-SI") : "";
+    el.innerHTML = `
+      ${o.slikaUrl ? `<img src="${esc(o.slikaUrl)}" alt="" loading="lazy">` : ""}
+      <div class="objava-vsebina">
+        <p class="objava-glava"><strong>${esc(o.avtor)}</strong>${o.vrh ? " · ⛰ " + esc(o.vrh) : ""} <span>${datum}</span></p>
+        ${o.besedilo ? `<p>${esc(o.besedilo)}</p>` : ""}
+      </div>`;
+    seznam.appendChild(el);
+  });
+});
 
 function esc(s = "") {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -114,5 +177,5 @@ function prevediNapako(koda) {
     "auth/invalid-credential": "Napačna e-pošta ali geslo.",
     "auth/user-not-found": "Uporabnik ne obstaja.",
     "auth/wrong-password": "Napačno geslo.",
-  }[koda] || "Napaka: " + koda;
+  }[koda] || "Napaka: " + (koda || "neznana");
 }
