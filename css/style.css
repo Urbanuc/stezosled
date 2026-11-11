@@ -284,3 +284,20 @@ html { scroll-behavior: smooth; }
   .dva-stolpca { grid-template-columns: 1fr; }
   .sekcija { padding: 3rem 1.2rem; }
 }
+
+/* ===== Objave ===== */
+.okno { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); padding: 1.5rem; max-width: 32rem; margin-bottom: 2rem; }
+.obrazec { display: grid; gap: 0.8rem; margin-top: 0.8rem; }
+.obrazec input, .obrazec textarea { padding: 0.7rem 0.9rem; border: 1px solid #cfd6d2; border-radius: 8px; font: inherit; }
+.obrazec input:focus, .obrazec textarea:focus { outline: 2px solid var(--zelena); border-color: transparent; }
+.gumbi { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.gumb { border: none; cursor: pointer; font: inherit; font-weight: 600; }
+.gumb-obris { background: white; color: var(--zelena); border: 2px solid var(--zelena); box-shadow: none; }
+.povezava-gumb { background: none; border: none; color: var(--zelena); cursor: pointer; font: inherit; text-decoration: underline; }
+#objave-sporocilo { min-height: 1.5em; color: var(--zelena); }
+#objave-sporocilo.napaka { color: #b8392f; }
+.objave { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+.objava { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+.objava img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+.objava-vsebina { padding: 1rem 1.2rem; }
+.objava-glava span { color: #888; font-size: 0.85rem; margin-left: 0.4rem; }

@@ -15,6 +15,7 @@
       <ul class="meni-povezave">
         <li><a href="#vrhovi">Vrhovi</a></li>
         <li><a href="#narava">Narava</a></li>
+        <li><a href="#objave">Objave</a></li>
         <li><a href="#galerija">Galerija</a></li>
         <li><a href="#o-projektu">O projektu</a></li>
       </ul>
@@ -49,6 +50,36 @@
       </div>
     </section>
 
+    <section id="objave" class="sekcija">
+      <h2>Objave</h2>
+      <p class="podnaslov">Deli svoje fotografije in izkušnje z gora. Prijavi se in objavi.</p>
+      <p id="objave-sporocilo"></p>
+
+      <div id="prijava-okno" class="okno">
+        <h3>Prijava</h3>
+        <form id="obrazec-prijava" class="obrazec">
+          <input id="prijava-email" type="email" placeholder="E-pošta" required autocomplete="email">
+          <input id="prijava-geslo" type="password" placeholder="Geslo (vsaj 6 znakov)" required minlength="6" autocomplete="current-password">
+          <div class="gumbi">
+            <button type="submit" class="gumb" data-akcija="prijava">Prijava</button>
+            <button type="submit" class="gumb gumb-obris" data-akcija="registracija">Registracija</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="nova-objava" class="okno" hidden>
+        <p class="podnaslov">Prijavljen kot <strong id="prijavljen-kot"></strong> · <button id="gumb-odjava" class="povezava-gumb">Odjava</button></p>
+        <form id="obrazec-objava" class="obrazec">
+          <input id="objava-vrh" type="text" placeholder="Vrh (npr. Viševnik)">
+          <textarea id="objava-besedilo" rows="3" placeholder="Kako je bilo?"></textarea>
+          <input id="objava-slika" type="file" accept="image/*">
+          <button type="submit" class="gumb">Objavi</button>
+        </form>
+      </div>
+
+      <div id="seznam-objav" class="objave"></div>
+    </section>
+
     <section id="galerija" class="sekcija">
       <h2>Galerija</h2>
       <p class="podnaslov">Fotografije razgledov, rastlin in živali.</p>
@@ -76,5 +107,6 @@
 
   <script src="js/podatki.js"></script>
   <script src="js/main.js"></script>
+  <script type="module" src="js/objave.js"></script>
 </body>
 </html>
