@@ -38,7 +38,9 @@ async function prepoznaj(datoteka) {
       { method: "POST", body: podatki },
     );
     if (!odgovor.ok) {
-      throw new Error(odgovor.status === 404 ? "Rastline ni bilo mogoče prepoznati." : "Napaka strežnika (" + odgovor.status + ").");
+      throw new Error(odgovor.status === 404 ? "Rastline ni bilo mogoče prepoznati."
+        : odgovor.status === 403 ? "Pl@ntNet ne dovoli te domene: v nastavitvah ključa na my.plantnet.org dodaj urbanuc.github.io med dovoljene domene."
+          : "Napaka strežnika (" + odgovor.status + ").");
     }
     const json = await odgovor.json();
     const zadetki = (json.results || []).slice(0, 4);
