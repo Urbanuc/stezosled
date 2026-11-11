@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skupnost – Stezosled</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="glava"></div>
+
+  <main class="stran ozka">
+    <h1>Skupnost</h1>
+    <p class="podnaslov">Objave planincev: vzponi, razgledi in nasveti za pot.</p>
+    <p id="sporocilo" role="status"></p>
+
+    <section id="nova-objava" class="kartica" hidden>
+      <form id="obrazec-objava">
+        <textarea id="objava-besedilo" rows="3" placeholder="Kje si bil danes? Deli vzpon, razgled ali nasvet za pot …"></textarea>
+        <div class="vrstica">
+          <input id="objava-vrh" type="text" placeholder="⛰ Vrh (neobvezno)" list="seznam-vrhov-izbira">
+          <datalist id="seznam-vrhov-izbira"></datalist>
+          <label class="gumb gumb-svetel" for="objava-slika">📷 Slika</label>
+          <input id="objava-slika" type="file" accept="image/*" hidden>
+          <button type="submit" class="gumb">Objavi</button>
+        </div>
+        <p id="izbrana-slika" class="majhno"></p>
+      </form>
+    </section>
+
+    <section id="poziv-prijava" class="kartica poziv">
+      <h2>Pridruži se skupnosti</h2>
+      <p>Prijavi se, da objaviš svoj vzpon, všečkaš in komentiraš.</p>
+      <button class="gumb" id="poziv-gumb">Prijava ali registracija</button>
+    </section>
+
+    <section id="seznam-objav" aria-live="polite"></section>
+  </main>
+
+  <div id="noga"></div>
+  <script type="module" src="js/objave.js"></script>
+</body>
+</html>

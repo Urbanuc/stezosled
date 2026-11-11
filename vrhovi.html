@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vrhovi – Stezosled</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="glava"></div>
+
+  <main class="stran">
+    <h1>Vrhovi</h1>
+    <p class="podnaslov">Pregled slovenskih vrhov. Označi, kje si že bil, in poglej, koliko planincev je bilo tam pred tabo.</p>
+
+    <div class="filter kartica">
+      <input id="iskanje" type="search" placeholder="🔍 Išči vrh …">
+      <select id="filter-gorovje"><option value="">Vsa gorovja</option></select>
+      <select id="filter-tezavnost">
+        <option value="">Vse težavnosti</option>
+        <option>lahka</option>
+        <option>srednje zahtevna</option>
+        <option>zahtevna</option>
+        <option>zelo zahtevna</option>
+      </select>
+      <select id="razvrsti">
+        <option value="visina">Po višini</option>
+        <option value="ime">Po imenu</option>
+        <option value="obiski">Po obiskih</option>
+      </select>
+    </div>
+    <p id="sporocilo" role="status"></p>
+    <div id="seznam-vrhov" class="mreza"></div>
+  </main>
+
+  <div id="noga"></div>
+  <script type="module" src="js/vrhovi.js"></script>
+</body>
+</html>

@@ -1,45 +1,18 @@
-// Družbeni tok: prijava, objave, všečki in komentarji (Firebase Auth + Firestore).
-import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+// Stran Skupnost: objave, všečki in komentarji.
 import {
-  getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
-} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+  db, $, ime, esc, avatar, kdaj, pomanjsajSliko, onUporabnik, odpriPrijavo,
+} from "./skupno.js";
+import * as skupno from "./skupno.js";
 import {
-  getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot,
+  collection, addDoc, deleteDoc, updateDoc, doc, query, orderBy, onSnapshot,
   serverTimestamp, arrayUnion, arrayRemove,
 } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
-import { firebaseConfig } from "./firebase-config.js";
+import { vrhovi } from "./podatki.js";
 
-const $ = (id) => document.getElementById(id);
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-let uporabnik = null;
+const trenutni = () => skupno.uporabnik; // vedno sveža vrednost
 let objave = [];
 const odprtiKomentarji = new Set();
 const odjavaKomentarjev = new Map();
-
-// ---------- Pomožne funkcije ----------
-const ime = (email = "") => email.split("@")[0] || "Neznanec";
-const esc = (s = "") =>
-  String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const barva = (s) => {
-  let h = 0;
-  for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 360;
-  return `hsl(${h} 45% 40%)`;
-};
-const avatar = (email, razred = "") =>
-  `<span class="avatar ${razred}" style="background:${barva(email)}">${esc(ime(email)[0]?.toUpperCase() || "?")}</span>`;
-
-function kdaj(d) {
-  if (!d) return "pravkar";
-  const s = (Date.now() - d.getTime()) / 1000;
-  if (s < 60) return "pravkar";
-  if (s < 3600) return `pred ${Math.floor(s / 60)} min`;
-  if (s < 86400) return `pred ${Math.floor(s / 3600)} h`;
-  if (s < 7 * 86400) return `pred ${Math.floor(s / 86400)} d`;
-  return d.toLocaleDateString("sl-SI");
-}
 
 function sporocilo(txt, napaka = false) {
   const el = $("sporocilo");
@@ -47,84 +20,29 @@ function sporocilo(txt, napaka = false) {
   el.className = napaka ? "napaka" : "";
 }
 
-function prevediNapako(koda) {
-  return {
-    "auth/invalid-email": "Neveljaven e-poštni naslov.",
-    "auth/weak-password": "Geslo mora imeti vsaj 6 znakov.",
-    "auth/email-already-in-use": "Ta e-pošta je že registrirana.",
-    "auth/invalid-credential": "Napačna e-pošta ali geslo.",
-    "auth/user-not-found": "Uporabnik ne obstaja.",
-    "auth/wrong-password": "Napačno geslo.",
-    "auth/operation-not-allowed": "Prijava z e-pošto ni vklopljena v Firebase.",
-    "auth/too-many-requests": "Preveč poskusov, poskusi čez nekaj minut.",
-  }[koda] || "Napaka: " + (koda || "neznana");
-}
-
-// Pomanjša sliko na največ 800 px in jo vrne kot JPEG (data URL, ~100–200 kB).
-function preberiSliko(datoteka) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        const k = Math.min(1, 800 / Math.max(img.width, img.height));
-        const c = document.createElement("canvas");
-        c.width = Math.round(img.width * k);
-        c.height = Math.round(img.height * k);
-        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-        res(c.toDataURL("image/jpeg", 0.7));
-      };
-      img.onerror = () => rej(new Error("Slike ni mogoče prebrati."));
-      img.src = r.result;
-    };
-    r.onerror = rej;
-    r.readAsDataURL(datoteka);
-  });
-}
-
-// ---------- Prijava ----------
-const dialog = $("prijava-dialog");
-document.querySelectorAll("[data-odpri-prijavo]").forEach((g) =>
-  g.addEventListener("click", () => {
-    $("prijava-napaka").textContent = "";
-    dialog.showModal();
-  }));
-$("prijava-zapri").addEventListener("click", () => dialog.close());
-
-$("obrazec-prijava").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email = $("prijava-email").value.trim();
-  const geslo = $("prijava-geslo").value;
-  const registracija = e.submitter?.dataset.akcija === "registracija";
-  try {
-    if (registracija) await createUserWithEmailAndPassword(auth, email, geslo);
-    else await signInWithEmailAndPassword(auth, email, geslo);
-    e.target.reset();
-    dialog.close();
-  } catch (err) {
-    $("prijava-napaka").textContent = prevediNapako(err.code);
-  }
+// Seznam vrhov za izbiro
+vrhovi.forEach((v) => {
+  const o = document.createElement("option");
+  o.value = v.ime;
+  $("seznam-vrhov-izbira").appendChild(o);
 });
-$("gumb-odjava").addEventListener("click", () => signOut(auth));
+$("objava-slika").addEventListener("change", (e) => {
+  const f = e.target.files[0];
+  $("izbrana-slika").textContent = f ? "Izbrana slika: " + f.name : "";
+});
+$("poziv-gumb").addEventListener("click", odpriPrijavo);
 
-onAuthStateChanged(auth, (u) => {
-  uporabnik = u;
-  $("gumb-prijava").hidden = !!u;
-  $("uporabnik-info").hidden = !u;
+onUporabnik((u) => {
   $("nova-objava").hidden = !u;
   $("poziv-prijava").hidden = !!u;
-  if (u) {
-    $("uporabnik-ime").textContent = ime(u.email);
-    $("avatar-glava").style.background = barva(u.email);
-    $("avatar-glava").textContent = ime(u.email)[0].toUpperCase();
-  }
   izrisiTok();
 });
 
 // ---------- Nova objava ----------
 $("obrazec-objava").addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!uporabnik) return;
+  const u = trenutni();
+  if (!u) return;
   const datoteka = $("objava-slika").files[0];
   const besedilo = $("objava-besedilo").value.trim();
   const vrh = $("objava-vrh").value.trim();
@@ -133,13 +51,9 @@ $("obrazec-objava").addEventListener("submit", async (e) => {
   gumb.disabled = true;
   sporocilo("Objavljam …");
   try {
-    const slikaUrl = datoteka ? await preberiSliko(datoteka) : null;
+    const slikaUrl = datoteka ? await pomanjsajSliko(datoteka) : null;
     await addDoc(collection(db, "objave"), {
-      avtor: uporabnik.email,
-      avtorId: uporabnik.uid,
-      besedilo, vrh, slikaUrl,
-      vsecki: [],
-      cas: serverTimestamp(),
+      avtor: u.email, avtorId: u.uid, besedilo, vrh, slikaUrl, vsecki: [], cas: serverTimestamp(),
     });
     e.target.reset();
     $("izbrana-slika").textContent = "";
@@ -151,7 +65,7 @@ $("obrazec-objava").addEventListener("submit", async (e) => {
   }
 });
 
-// ---------- Tok objav ----------
+// ---------- Tok ----------
 onSnapshot(
   query(collection(db, "objave"), orderBy("cas", "desc")),
   (snap) => {
@@ -170,12 +84,13 @@ function izrisiTok() {
   const seznam = $("seznam-objav");
   seznam.innerHTML = "";
   if (!objave.length) {
-    seznam.innerHTML = '<p class="majhno" style="margin-top:1rem;text-align:center">Še ni objav – bodi prvi!</p>';
+    seznam.innerHTML = '<p class="majhno sredina">Še ni objav – bodi prvi!</p>';
     return;
   }
+  const u = trenutni();
   objave.forEach((o) => {
-    const vsecek = uporabnik && o.vsecki.includes(uporabnik.uid);
-    const moja = uporabnik && o.avtorId === uporabnik.uid;
+    const vsecek = u && o.vsecki.includes(u.uid);
+    const moja = u && o.avtorId === u.uid;
     const el = document.createElement("article");
     el.className = "kartica objava";
     el.dataset.id = o.id;
@@ -203,12 +118,13 @@ $("seznam-objav").addEventListener("click", async (e) => {
   const el = gumb.closest(".objava");
   const id = el.dataset.id;
   const akcija = gumb.dataset.akcija;
+  const u = trenutni();
 
   if (akcija === "vsecek") {
-    if (!uporabnik) return $("prijava-dialog").showModal();
+    if (!u) return odpriPrijavo();
     const o = objave.find((x) => x.id === id);
-    const ze = o.vsecki.includes(uporabnik.uid);
-    updateDoc(doc(db, "objave", id), { vsecki: ze ? arrayRemove(uporabnik.uid) : arrayUnion(uporabnik.uid) })
+    const ze = o.vsecki.includes(u.uid);
+    updateDoc(doc(db, "objave", id), { vsecki: ze ? arrayRemove(u.uid) : arrayUnion(u.uid) })
       .catch((err) => sporocilo("Napaka: " + err.message, true));
   } else if (akcija === "komentarji") {
     const polje = el.querySelector(".komentarji");
@@ -230,30 +146,30 @@ $("seznam-objav").addEventListener("click", async (e) => {
 
 // ---------- Komentarji ----------
 function odpriKomentarje(el, id) {
+  const u = trenutni();
   const polje = el.querySelector(".komentarji");
   polje.hidden = false;
   polje.innerHTML = `<div class="seznam-komentarjev"></div>
-    ${uporabnik
+    ${u
       ? '<form class="komentar-obrazec"><input type="text" placeholder="Napiši komentar …" maxlength="500" required><button class="gumb">Pošlji</button></form>'
       : '<p class="majhno">Za komentiranje se prijavi.</p>'}`;
   const seznam = polje.querySelector(".seznam-komentarjev");
 
   odjavaKomentarjev.get(id)?.();
-  const odjava = onSnapshot(
+  odjavaKomentarjev.set(id, onSnapshot(
     query(collection(db, "objave", id, "komentarji"), orderBy("cas", "asc")),
     (snap) => {
       seznam.innerHTML = "";
       snap.forEach((d) => {
         const k = d.data();
-        const k_el = document.createElement("div");
-        k_el.className = "komentar";
-        k_el.innerHTML = `${avatar(k.avtor)}<div class="komentar-telo"><strong>${esc(ime(k.avtor))}</strong>
+        const kel = document.createElement("div");
+        kel.className = "komentar";
+        kel.innerHTML = `${avatar(k.avtor)}<div class="komentar-telo"><strong>${esc(ime(k.avtor))}</strong>
           <span class="majhno"> · ${kdaj(k.cas?.toDate ? k.cas.toDate() : null)}</span><br>${esc(k.besedilo)}</div>`;
-        seznam.appendChild(k_el);
+        seznam.appendChild(kel);
       });
     },
-  );
-  odjavaKomentarjev.set(id, odjava);
+  ));
 
   const obrazec = polje.querySelector("form");
   if (obrazec) {
@@ -265,7 +181,7 @@ function odpriKomentarje(el, id) {
       input.value = "";
       try {
         await addDoc(collection(db, "objave", id, "komentarji"), {
-          avtor: uporabnik.email, avtorId: uporabnik.uid, besedilo, cas: serverTimestamp(),
+          avtor: u.email, avtorId: u.uid, besedilo, cas: serverTimestamp(),
         });
       } catch (err) {
         sporocilo("Komentar ni uspel: " + err.message, true);

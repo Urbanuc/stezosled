@@ -17,5 +17,14 @@ service cloud.firestore {
         allow delete: if request.auth != null && resource.data.avtorId == request.auth.uid;
       }
     }
+
+    // "Bil sem tu" pri vrhovih
+    match /obiski/{id} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid
+                    && id == request.auth.uid + '_' + request.resource.data.vrh;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
   }
 }

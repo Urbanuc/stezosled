@@ -3,80 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stezosled</title>
-  <meta name="description" content="Stezosled – družbeno omrežje za ljubitelje slovenskih dvatisočakov. Deli vzpone, fotografije in poti.">
+  <title>Stezosled – skupnost ljubiteljev gora</title>
+  <meta name="description" content="Stezosled je slovensko družbeno omrežje za ljubitelje gora: deli vzpone, odkrivaj vrhove, prepoznaj rože in spoznaj gorske živali.">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header class="vrh">
-    <div class="vrh-notranji">
-      <a href="#" class="logo"><span class="logo-znak">⛰</span> Stezosled</a>
-      <div id="uporabnik-polje">
-        <button id="gumb-prijava" class="gumb" data-odpri-prijavo>Prijava</button>
-        <div id="uporabnik-info" hidden>
-          <span class="avatar" id="avatar-glava"></span>
-          <span id="uporabnik-ime"></span>
-          <button id="gumb-odjava" class="gumb gumb-svetel">Odjava</button>
-        </div>
+  <div id="glava"></div>
+
+  <section class="junak">
+    <div class="junak-vsebina">
+      <h1>Gore so lepše v družbi</h1>
+      <p>Deli svoje vzpone, odkrivaj vrhove, prepoznaj rože s fotografijo in spoznaj gorske živali.</p>
+      <div class="gumbi">
+        <a href="skupnost.html" class="gumb gumb-bel-poln">Poglej skupnost</a>
+        <a href="vrhovi.html" class="gumb gumb-obris-bel">Odkrij vrhove</a>
       </div>
     </div>
-  </header>
+  </section>
 
-  <div class="postavitev">
-    <main class="tok">
-      <p id="sporocilo" role="status"></p>
+  <main class="stran">
+    <section class="ploscice">
+      <a class="ploscica" href="skupnost.html"><span class="emoji">👥</span><h3>Skupnost</h3><p>Objavljaj fotografije in vtise, všečkaj in komentiraj.</p></a>
+      <a class="ploscica" href="vrhovi.html"><span class="emoji">🏔️</span><h3>Vrhovi</h3><p>Pregled slovenskih vrhov, iskanje in zaznamek »bil sem tu«.</p></a>
+      <a class="ploscica" href="rastline.html"><span class="emoji">🌼</span><h3>Rože</h3><p>Slikaj rožo in izvedi, katera je. Vodnik po gorskem cvetju.</p></a>
+      <a class="ploscica" href="zivali.html"><span class="emoji">🐐</span><h3>Živali</h3><p>Gams, kozorog, svizec in drugi prebivalci gora.</p></a>
+    </section>
 
-      <section id="nova-objava" class="kartica objavljalnik" hidden>
-        <form id="obrazec-objava">
-          <textarea id="objava-besedilo" rows="3" placeholder="Kje si bil danes? Deli vzpon, razgled ali nasvet za pot …"></textarea>
-          <div class="objavljalnik-vrstica">
-            <input id="objava-vrh" type="text" placeholder="⛰ Vrh (npr. Viševnik)" list="seznam-vrhov-izbira">
-            <datalist id="seznam-vrhov-izbira"></datalist>
-            <label class="gumb gumb-svetel" for="objava-slika">📷 Slika</label>
-            <input id="objava-slika" type="file" accept="image/*" hidden>
-            <button type="submit" class="gumb">Objavi</button>
-          </div>
-          <p id="izbrana-slika" class="majhno"></p>
-        </form>
-      </section>
-
-      <section id="poziv-prijava" class="kartica poziv">
-        <h2>Dobrodošel na Stezosledu</h2>
-        <p>Družbeno omrežje za ljubitelje slovenskih gora. Prijavi se, da objaviš svoj vzpon, všečkaš in komentiraš.</p>
-        <button class="gumb" data-odpri-prijavo>Prijava ali registracija</button>
-      </section>
-
-      <section id="seznam-objav" aria-live="polite"></section>
-    </main>
-
-    <aside class="stransko">
-      <section class="kartica">
-        <h3>Dvatisočaki</h3>
-        <ul id="seznam-vrhov" class="vrhovi"></ul>
-      </section>
-      <section class="kartica">
-        <h3>O Stezosledu</h3>
-        <p class="majhno">Nastaja kot projektna naloga v 2. letniku Škofijske klasične gimnazije. Cilj: pet slovenskih dvatisočakov, poti, narava in skupnost ljudi, ki radi hodijo v hribe.</p>
-      </section>
-    </aside>
-  </div>
-
-  <dialog id="prijava-dialog">
-    <form id="obrazec-prijava" method="dialog">
-      <h2>Prijava</h2>
-      <input id="prijava-email" type="email" placeholder="E-pošta" required autocomplete="email">
-      <input id="prijava-geslo" type="password" placeholder="Geslo (vsaj 6 znakov)" required minlength="6" autocomplete="current-password">
-      <p id="prijava-napaka" class="napaka" role="alert"></p>
-      <div class="gumbi">
-        <button type="submit" class="gumb" data-akcija="prijava">Prijava</button>
-        <button type="submit" class="gumb gumb-svetel" data-akcija="registracija">Registracija</button>
-        <button type="button" class="povezava-gumb" id="prijava-zapri">Prekliči</button>
+    <section>
+      <div class="naslov-vrstica">
+        <h2>Zadnje objave</h2>
+        <a href="skupnost.html">Vse objave →</a>
       </div>
-    </form>
-  </dialog>
+      <div id="zadnje-objave" class="mreza"></div>
+    </section>
+  </main>
 
-  <script src="js/podatki.js"></script>
-  <script src="js/main.js"></script>
-  <script type="module" src="js/objave.js"></script>
+  <div id="noga"></div>
+  <script type="module" src="js/domov.js"></script>
 </body>
 </html>

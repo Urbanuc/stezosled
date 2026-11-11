@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rože – Stezosled</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="glava"></div>
+
+  <main class="stran ozka">
+    <h1>Rože</h1>
+    <p class="podnaslov">Slikaj rožo ali izberi fotografijo iz galerije in izvedi, katera je.</p>
+
+    <section class="kartica prepoznava">
+      <h2>🌼 Prepoznaj rožo</h2>
+      <div class="gumbi">
+        <label class="gumb" for="slika-kamera">📷 Slikaj</label>
+        <input id="slika-kamera" type="file" accept="image/*" capture="environment" hidden>
+        <label class="gumb gumb-svetel" for="slika-galerija">🖼️ Iz galerije</label>
+        <input id="slika-galerija" type="file" accept="image/*" hidden>
+      </div>
+      <img id="predogled" class="predogled" alt="" hidden>
+      <p id="stanje" class="majhno" role="status"></p>
+      <div id="rezultati"></div>
+      <p class="majhno">Prepoznava je približna. Zavarovanih rastlin nikoli ne trgaj, fotografiraj jih.</p>
+    </section>
+
+    <h2 class="razmik">Vodnik po gorskem cvetju</h2>
+    <div id="vodnik" class="mreza"></div>
+  </main>
+
+  <div id="noga"></div>
+  <script type="module" src="js/rastline.js"></script>
+</body>
+</html>
