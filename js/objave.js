@@ -10,7 +10,7 @@ const sporocilo = (txt, napaka = false) => {
   el.className = napaka ? "napaka" : "";
 };
 
-const FIREBASE = "https://www.gstatic.com/firebasejs/10.12.0/";
+const FIREBASE = "https://www.gstatic.com/firebasejs/13.2.0/";
 const imaFirebase = firebaseConfig.apiKey !== "VPIŠI";
 
 // ---------- Zaledje: Firebase ----------
