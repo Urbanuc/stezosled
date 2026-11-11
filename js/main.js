@@ -1,34 +1,22 @@
-// Izriše vrhove, rastline in živali iz podatki.js
-
-const seznamVrhov = document.getElementById("seznam-vrhov");
-vrhovi.forEach((vrh, i) => {
-  const kartica = document.createElement("article");
-  kartica.className = "kartica";
-  kartica.innerHTML = `
-    <div class="kartica-slika">${i + 1}</div>
-    <div class="kartica-vsebina">
-      <h3>${vrh.ime}</h3>
-      <p class="visina">${vrh.visina} m</p>
-      <p><strong>Izhodišče:</strong> ${vrh.izhodisce}</p>
-      <p><strong>Čas hoje:</strong> ${vrh.cas}</p>
-      <p><span class="oznaka ${vrh.tezavnost}">${vrh.tezavnost}</span></p>
-      <p>${vrh.opis}</p>
-    </div>`;
-  seznamVrhov.appendChild(kartica);
+// Stranski seznam dvatisočakov in izbira vrha v obrazcu.
+const seznamVrhovUl = document.getElementById("seznam-vrhov");
+vrhovi.forEach((v, i) => {
+  const li = document.createElement("li");
+  li.className = v.opravljeno ? "opravljen" : "";
+  li.innerHTML = `<span class="stevilka">${i + 1}</span>
+    <span><strong>${v.ime}</strong>${v.visina ? `<br><span class="majhno">${v.visina} m · ${v.izhodisce}</span>` : ""}</span>
+    <span class="kljukica">${v.opravljeno ? "✔" : ""}</span>`;
+  seznamVrhovUl.appendChild(li);
 });
 
-function napolniSeznam(id, elementi) {
-  const ul = document.getElementById(id);
-  elementi.forEach((ime) => {
-    const li = document.createElement("li");
-    li.textContent = ime;
-    ul.appendChild(li);
-  });
-}
-napolniSeznam("seznam-rastlin", rastline);
-napolniSeznam("seznam-zivali", zivali);
+const izbiraVrhov = document.getElementById("seznam-vrhov-izbira");
+vrhovi.filter((v) => v.visina).forEach((v) => {
+  const o = document.createElement("option");
+  o.value = v.ime;
+  izbiraVrhov.appendChild(o);
+});
 
-// Meni na telefonu
-document.querySelector(".meni-gumb").addEventListener("click", () => {
-  document.querySelector(".meni-povezave").classList.toggle("odprt");
+document.getElementById("objava-slika").addEventListener("change", (e) => {
+  const f = e.target.files[0];
+  document.getElementById("izbrana-slika").textContent = f ? "Izbrana slika: " + f.name : "";
 });

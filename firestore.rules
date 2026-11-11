@@ -4,7 +4,18 @@ service cloud.firestore {
     match /objave/{id} {
       allow read: if true;
       allow create: if request.auth != null && request.resource.data.avtorId == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.avtorId == request.auth.uid;
+      // Avtor lahko ureja objavo, vsak prijavljen uporabnik pa lahko spremeni le polje "vsecki".
+      allow update: if request.auth != null && (
+        resource.data.avtorId == request.auth.uid ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['vsecki'])
+      );
+      allow delete: if request.auth != null && resource.data.avtorId == request.auth.uid;
+
+      match /komentarji/{k} {
+        allow read: if true;
+        allow create: if request.auth != null && request.resource.data.avtorId == request.auth.uid;
+        allow delete: if request.auth != null && resource.data.avtorId == request.auth.uid;
+      }
     }
   }
 }
