@@ -15,16 +15,14 @@ const imaFirebase = firebaseConfig.apiKey !== "VPIŠI";
 
 // ---------- Zaledje: Firebase ----------
 async function zaledjeFirebase() {
-  const [{ initializeApp }, A, F, S] = await Promise.all([
+  const [{ initializeApp }, A, F] = await Promise.all([
     import(FIREBASE + "firebase-app.js"),
     import(FIREBASE + "firebase-auth.js"),
     import(FIREBASE + "firebase-firestore.js"),
-    import(FIREBASE + "firebase-storage.js"),
   ]);
   const app = initializeApp(firebaseConfig);
   const auth = A.getAuth(app);
   const db = F.getFirestore(app);
-  const storage = S.getStorage(app);
   return {
     naUporabnika: (cb) => A.onAuthStateChanged(auth, (u) => cb(u && { id: u.uid, email: u.email })),
     prijava: (e, g) => A.signInWithEmailAndPassword(auth, e, g),
@@ -32,12 +30,8 @@ async function zaledjeFirebase() {
     odjava: () => A.signOut(auth),
     async objavi({ besedilo, vrh, datoteka }) {
       const u = auth.currentUser;
-      let slikaUrl = null;
-      if (datoteka) {
-        const pot = S.ref(storage, `objave/${u.uid}/${Date.now()}-${datoteka.name}`);
-        await S.uploadBytes(pot, datoteka);
-        slikaUrl = await S.getDownloadURL(pot);
-      }
+      // Slika se pomanjša in shrani kar v Firestore (Storage zahteva plačljiv paket).
+      const slikaUrl = datoteka ? await preberiSliko(datoteka) : null;
       await F.addDoc(F.collection(db, "objave"), {
         avtor: u.email, avtorId: u.uid, besedilo, vrh, slikaUrl, cas: F.serverTimestamp(),
       });
@@ -59,23 +53,6 @@ function zaledjeLokalno() {
   const trenutni = () => bere("demo-uporabnik", null);
   const sporoci = () => poslusalci.forEach((cb) => cb(trenutni()));
   const osvezi = () => objaveCb && objaveCb(bere("demo-objave", []).map((o) => ({ ...o, cas: new Date(o.cas) })));
-  const preberiSliko = (datoteka) => new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => {
-      // pomanjšaj, da ne napolnimo localStorage
-      const img = new Image();
-      img.onload = () => {
-        const k = Math.min(1, 800 / img.width);
-        const c = document.createElement("canvas");
-        c.width = img.width * k; c.height = img.height * k;
-        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-        res(c.toDataURL("image/jpeg", 0.7));
-      };
-      img.onerror = rej;
-      img.src = r.result;
-    };
-    r.onerror = rej;
-    r.readAsDataURL(datoteka);
   });
   return {
     naUporabnika: (cb) => { poslusalci.push(cb); cb(trenutni()); },
@@ -178,4 +155,26 @@ function prevediNapako(koda) {
     "auth/user-not-found": "Uporabnik ne obstaja.",
     "auth/wrong-password": "Napačno geslo.",
   }[koda] || "Napaka: " + (koda || "neznana");
+}
+
+// Pomanjša sliko na največ 800 px in jo vrne kot JPEG (data URL, ~100–200 kB).
+function preberiSliko(datoteka) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, 800 / Math.max(img.width, img.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.width * k);
+        c.height = Math.round(img.height * k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL("image/jpeg", 0.7));
+      };
+      img.onerror = () => rej(new Error("Slike ni mogoče prebrati."));
+      img.src = r.result;
+    };
+    r.onerror = rej;
+    r.readAsDataURL(datoteka);
+  });
 }
